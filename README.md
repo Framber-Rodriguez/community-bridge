@@ -6,7 +6,7 @@ Public site: https://community-bridge-huntsville.bframber12.chatgpt.site
 
 ## Features
 
-- English and Spanish resource search with official links
+- English and Spanish resource search across 12 categories and 17 listings, with official links, relevance ranking, A–Z sorting, and a saved-only filter
 - Guided assessment with optional resource-grounded live AI
 - Explicit on-device keyword fallback when AI is unavailable
 - Browser-local saved plans, checklists, calendar-file downloads and printing
@@ -39,4 +39,4 @@ A GitHub repository stores source; creating one alone does not activate a websit
 
 ## Pilot limits
 
-Resource information was manually reviewed on October 14, 2026. Confirm availability, eligibility, fees, and schedules with each provider. ZIP codes provide context and do not produce geospatial ranking. The app does not submit applications, book transport, or send messages. Calendar reminders must be imported by the visitor. Resource suggestions download as files and are not submitted automatically. No partnership with listed providers is implied.
+Original resources were reviewed October 14, 2026; expanded listings were reviewed October 26, 2026. Each resource detail shows its review date. Confirm availability, eligibility, fees, and schedules with each provider. ZIP codes provide context and do not produce geospatial ranking. The app does not submit applications, book transport, or send messages. Calendar reminders must be imported by the visitor. Resource suggestions download as files and are not submitted automatically. No partnership with listed providers is implied.

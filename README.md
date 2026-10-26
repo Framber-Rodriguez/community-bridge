@@ -35,7 +35,7 @@ The optional AI assessment sends the visitor's description, ZIP code, schedule, 
 
 ## Hosting and GitHub Pages
 
-A GitHub repository stores source; creating one alone does not activate a website. GitHub Pages can host the `web/` static files. It cannot run this AI backend. The current app uses a same-origin API; a Pages deployment would need a separately hosted backend, explicit CORS configuration, and the frontend API URL updated. The current public Sites deployment serves both the frontend and backend.
+A GitHub repository stores source; creating one alone does not activate a website. GitHub Pages can host the `web/` static files. It cannot run this AI backend. The GitHub Pages frontend calls the hosted Community Bridge backend. That backend explicitly allows the https://framber-rodriguez.github.io origin and handles JSON request preflights. Other origins are rejected. The current public Sites deployment serves both the frontend and backend.
 
 ## Pilot limits
 

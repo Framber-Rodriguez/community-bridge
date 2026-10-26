@@ -2,11 +2,11 @@ const windows=new Map();
 const response=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 function allowed(key,limit,period){const now=Date.now();let w=windows.get(key);if(!w||now>w.until){w={n:0,until:now+period};windows.set(key,w)}w.n++;if(windows.size>5000){for(const[k,v]of windows)if(now>v.until)windows.delete(k)}return w.n<=limit;}
 const schema={type:'object',additionalProperties:false,properties:{summary:{type:'string'},recommendations:{type:'array',items:{type:'object',additionalProperties:false,properties:{id:{type:'string',enum:catalog.map(r=>r.id)},reason:{type:'string'}},required:['id','reason']}},caution:{type:'string'}},required:['summary','recommendations','caution']};
-export default{async fetch(request,env){const url=new URL(request.url);
+const handler={async fetch(request,env){const url=new URL(request.url);
 if(url.pathname==='/api/health')return response({ok:true,aiConfigured:Boolean(env.OPENAI_API_KEY),mode:'resource-grounded-ai'});
 if(url.pathname==='/api/assist'){
  if(request.method!=='POST')return response({code:'method_not_allowed'},405);
- const origin=request.headers.get('Origin');if(origin&&origin!==url.origin)return response({code:'forbidden_origin'},403);
+ const origin=request.headers.get('Origin');if(origin&&origin!==url.origin&&origin!=='https://framber-rodriguez.github.io')return response({code:'forbidden_origin'},403);
  if(!(request.headers.get('Content-Type')||'').includes('application/json'))return response({code:'json_required'},415);
  if(Number(request.headers.get('Content-Length')||0)>5000)return response({code:'request_too_large'},413);
  let input;try{const text=await request.text();if(text.length>5000)return response({code:'request_too_large'},413);input=JSON.parse(text)}catch{return response({code:'invalid_json'},400)}
@@ -22,4 +22,21 @@ if(url.pathname==='/api/assist'){
  }catch{return response({code:'ai_unavailable'},503)}
 }
 if(request.method!=='GET'&&request.method!=='HEAD')return new Response('Method not allowed',{status:405});const a=assets[url.pathname==='/index.html'?'/':url.pathname];if(!a)return new Response('Not found',{status:404});return new Response(request.method==='HEAD'?null:a.body,{headers:{'Content-Type':a.type,'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Cache-Control':'no-cache','Permissions-Policy':'camera=(), microphone=(), geolocation=()'}});
+}};
+
+// Permit only the published GitHub Pages origin; never reflect arbitrary origins.
+export default{async fetch(request,env){
+ const url=new URL(request.url),origin=request.headers.get('Origin');
+ const cors=url.pathname.startsWith('/api/')&&origin==='https://framber-rodriguez.github.io';
+ if(request.method==='OPTIONS'&&url.pathname.startsWith('/api/')){
+  if(!cors)return response({code:'forbidden_origin'},403);
+  if(request.headers.get('Access-Control-Request-Method')!=='POST')return response({code:'method_not_allowed'},405);
+  const headers=(request.headers.get('Access-Control-Request-Headers')||'').toLowerCase().split(',').map(x=>x.trim()).filter(Boolean);
+  if(headers.some(x=>x!=='content-type'))return response({code:'forbidden_headers'},403);
+  return new Response(null,{status:204,headers:{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Access-Control-Max-Age':'600','Vary':'Origin'}});
+ }
+ const result=await handler.fetch(request,env);
+ if(!cors)return result;
+ const headers=new Headers(result.headers);headers.set('Access-Control-Allow-Origin',origin);headers.set('Vary','Origin');
+ return new Response(result.body,{status:result.status,headers});
 }};
